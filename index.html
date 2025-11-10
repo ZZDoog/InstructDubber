@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title> InstructDubber Demo Page </title>
+		<link type="text/css" href="./css/basic.css" rel="stylesheet">
+		<link type="text/css" href="./css/index.css" rel="stylesheet">
+		<link type="text/css" href="./css/bootstrap.min.css" rel="stylesheet">
+		<script type='text/javascript' src="./js/jquery-3.3.1.min.js"></script>
+		<script type='text/javascript' src="./js/index.js"></script>
+	</head>
+	<body>
+		<div class="main">
+			<div class="title">
+				<img class="top-img"  src="img\background.png" />
+				<span>InstructDubber: Instruction-based Alignment for Zero-shot Movie Dubbing</span>
+			</div>
+			<div class="content">
+				<div class="section author">
+				</div>
+				<div class="section">
+					<div class="section-title">ABSTRACT</div>
+					<div class="section-content abstract">
+						Movie dubbing seeks to synthesize speech from a given script using a specific voice, while ensuring accurate lip synchronization and emotion-prosody alignment with the character’s visual performance. However, existing alignment approaches based on visual features face two key limitations: (1) they rely on complex, handcrafted visual preprocessing pipelines, including facial landmark detection and feature extraction; and (2) they generalize poorly to unseen visual domains, often resulting in degraded alignment and dubbing quality. To address these issues, we propose InstructDubber, a novel instruction-based alignment dubbing method for both robust in-domain and zero-shot movie dubbing. Specifically, we first feed the video, script, and corresponding prompts into a multimodal large language model to generate natural language dubbing instructions regarding the speaking rate and emotion state depicted in the video, which is robust to visual domain variations. Second, we design an instructed duration distilling module to mine discriminative duration cues from speaking rate instructions to predict lip-aligned phoneme-level pronunciation duration. Third, for emotion-prosody alignment, we devise an instructed emotion calibrating module, which fine-tunes an LLM-based instruction analyzer using ground truth dubbing emotion as supervision and predicts prosody based on the calibrated emotion analysis. Finally, the predicted duration and prosody, together with the script, are fed into the audio decoder to generate video-aligned dubbing. Extensive experiments on three major benchmarks demonstrate that InstructDubber outperforms state‑of‑the‑art approaches across both in‑domain and zero‑shot scenarios.
+					</div>
+				</div>
+				
+
+                <div class="section">
+                    <div class="section-title">MODEL ARCHITECTURE</div>
+                    <div class="section-content model" style="text-align: center;">
+                        <img src="img\InstructDubber_method.png" alt="" class="model-img" style="width: 80%; height: auto;">
+                        
+						<p style="padding-top: 1rem; color: #545353; font-size: 1rem; text-align: center;">The main architecture of the proposed InstructDubber.
+  						To predict the lip-synchronized phoneme-level duration, the Instructed Duration Distilling module (IDD) mines the duration cues from fine-grained speaking rate instructions.
+						The Instructed Emotion Calibrating module (IEC) fine-tunes a lightweight LLM to analyze the emotion instructions using the emotion entities from ground truth dubbing as supervision, and predicts the dubbing prosody based on the calibrated emotion analysis.</p>
+					</div>
+                </div>
+
+				<div class="section">
+                    <div class="section-title">BENCHMARK ANALYSIS</div>
+					<div class="section-content analysis">
+                    <table id="table_3: center" style="text-align: center; align: center">
+									<thead>
+										<colgroup>
+										   <col width=35%></col>
+										   <col width=35%></col>
+										   <col width=35%></col>
+										   
+										</colgroup>
+
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+											<tr>
+												<td colspan="7" style="text-align: center;">
+													
+													<strong>An example of each benchmark.</strong>
+													
+												</td>										
+											</tr>
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>V2C-Animation Benchmark</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Chem Benchmark</strong></th>
+											<th colspan="1" style="text-align: center"><strong>GRID Benchmark</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Benchmark_example\CloudyII@Flint_00_1250_00.mp4" controls="" preload="" width="400"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Benchmark_example\lpGVGcIVYs4-009.mp4" controls="" preload="" width="350"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Benchmark_example\s17-bbwe4n.mp4" controls="" preload="" width="350"></video></td>
+
+											</tr>
+											<td colspan="1" style="text-align: left; font-size: 1rem"> <strong>V2C-Animation</strong> derived from <span style="color:rgb(8, 124, 240)">real animated films</span>, characterized by <span style="color:rgb(8, 124, 240)">exaggerated prosodic variations and complex visual scenes</span>, making it the most challenging dubbing benchmark. </th>
+											<td colspan="1" style="text-align: left"></th> The <strong>Chem</strong> dataset is collected from chemistry lecture videos on YouTube, featuring a fixed camera perspective, <span style="color:rgb(8, 124, 240)">moderate variations in speaking rate and emotional expressions</span>.
+											<td colspan="1" style="text-align: left"><strong>GRID Benchmark</strong></th> is a basic and wide-used multi-speaker dubbing benchmark recorded in a noise-free studio with a unified screen background with a <span style="color:rgb(8, 124, 240)">stable speaking rate and minimal emotional variation</span>.
+											</tr>
+										
+										</tr>
+									</tbody>
+								
+								</table>
+								</br> Thus, in the main paper, we evaluate emotion similarity (EMO-SIM) on the V2C-Animation and Chem benchmarks. In this demo, we primarily showcase dubbing samples from the more challenging and discriminative V2C-Animation and Chem benchmarks.
+                </div>
+
+				<div class="section-content model" style="text-align: center;">
+                        <img src="img\SECS.png" alt="" class="model-img" style="width: 80%; height: auto;">
+                        
+						<p style="padding-top: 1rem; color: #545353; font-size: 1rem; text-align: left;">Due to space limitations and our primary focus on proposing a novel approach for dubbing alignment, we do not include comparisons of voice cloning performance across different models in the main text.
+																											Here, we compare the voice cloning performance of our approach with the state-of-the-art dubbing model ProDubber, which also serves as our baseline. 
+																											We extract speaker embeddings from both the generated dubbing and the ground-truth audio using a GE2E-based speaker encoder and compute the cosine similarity between them. 
+																											The results are presented in Table S3 of the Appendix.
+																											As shown in the table, our method achieves comparable speaker similarity performance to ProDubber in the in-domain dubbing scenario. Moreover, in zero-shot dubbing scenarios, our approach demonstrates superior voice cloning performance due to its enhanced robustness and generalization capability across different visual domains.</p>
+					</div>
+				
+				<div class="section">
+					<div class="section-title">EXPERIMENTS</div>
+					<div class="section-content experiments">
+						<!-- We develop four neural TTS systems for a  -->
+						<strong>Current SOTA Dubbing Baselines (All experimental results use the official code or providing checkpoint):</strong>
+						</br> 1) <b>StyleDubber (ACL'24)</b> is a SOTA Dubbing model using multi-scale style learning at the multi-modal phoneme level and acoustics utterance level.
+						</br> 2) <b>Speaker2Dubber (ACM MM'24)</b> is a SOTA pre-trained dubbing method with two-stage strategy to learn pronunciation from an additional TTS corpus. 
+						</br> 3) <b>DeepDubber (arXiv'25)</b> is a SOTA pre-trained dubbing method with two-stage strategy to learn pronunciation from an additional TTS corpus. 
+						</br> 4) <b>ProDubber (CVPR'25)</b> is a SOTA Dubbing model which first learn acoustic modeling ability from text-speech corpus then adapt the prosody to given videos.
+
+					</div>
+					<div class="section-content ">
+						<hr />
+						<div class="subsection-exp-2">
+							
+							<div>
+								
+							</div>
+
+
+								<!-- Sample1 GRID2Chem-->
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=20%></col>
+										   <col width=20%></col>
+								
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   
+										</colgroup>
+										
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+											<tr>
+												<td colspan="7" style="text-align: center;">
+													
+													<span style="font-weight: bold; font-size: 1.2em;" >Chem Sample: 0G0wCm28Jzc-005</span> 
+													
+												</td>										
+											</tr>
+											<tr>
+												<td colspan="7" style="text-align: left;">
+													
+													<span style="color:rgb(88, 86, 86);font-weight: bold">Text Content:</span> It doesn't dissolve very much. <br>
+													<span style="color:rgb(15, 89, 155);font-weight: bold">Speaking Rate Instruction:</span>The character's speaking pace in the video is relatively slow and measured, with a clear and deliberate delivery. There are no significant variations in the pace throughout the video, and the character maintains a consistent speaking rate throughout the script. The character's mouth movements are also consistent, with minimal variations in the shape and position of the mouth, which further supports the slow and measured pace of the speech.<br>
+													<span style="color:rgb(14, 187, 89);font-weight: bold">Emotion Instruction:</span> Based on the video content and the script, and the man's body language, with his arms outstretched and his facial expression, suggests that he is passionately conveying his message. The fact that he is speaking in front of a screen with the chemical formulae suggests that he is likely an expert or educator in the field, which could add to his frustration if the substance he is discussing is not dissolving as expected. Overall, the emotional tone of the character seems to be one of concern or annoyance, as he is emphasizing the lack of dissolution in the substance.
+												</td>										
+											</tr>
+											<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >GRID2Chem Benchmark Sample1 (Zero-shot Dubbing)</span>  -->
+												<strong>Zero-shot</strong> Dubbing under GRID2Chem scenario.
+								
+											</td>
+										</tr>	
+										
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample1_GRID2Chem\GT.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_GRID2Chem\StyleDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_GRID2Chem\Speaker2Dubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_GRID2Chem\DeepDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_GRID2Chem\ProDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_GRID2Chem\InstructDubber.mp4" controls="" preload="" width="200"></video></td>
+
+										</tr>
+									</tbody>
+								
+								</table>
+							
+
+							<div class="module-content" style="margin-bottom: 30px;">
+
+								<!-- Sample1 V2C2Chem -->
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=20%></col>
+										   <col width=20%></col>
+								
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   
+										</colgroup>
+										<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >V2C2Chem Benchmark Sample1 (Zero-shot Dubbing)</span>  -->
+												<strong>Zero-shot</strong> Dubbing under V2C2Chem scenario.
+											</td>
+										</tr>	
+
+									<tbody>
+
+
+
+									</tbody>
+									<tbody>
+										<tr>
+											<!-- <tr>
+												<td colspan="7" style="text-align: left;">
+													
+													<span style="color:rgb(146, 208, 80);">Text Content:</span> It doesn't dissolve very much.
+													
+												</td>										
+											</tr> -->
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample1_V2C2Chem\GT.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_V2C2Chem\StyleDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_V2C2Chem\Speaker2Dubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_V2C2Chem\DeepDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_V2C2Chem\ProDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_V2C2Chem\InstructDubber.mp4" controls="" preload="" width="200"></video></td>
+
+										</tr>
+									</tbody>
+
+									<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >V2C2Chem Benchmark Sample1 (Zero-shot Dubbing)</span>  -->
+												In-domain Dubbing scenario
+											</td>
+										</tr>	
+
+									<tbody>
+										<tr>
+											<!-- <tr>
+												<td colspan="7" style="text-align: left;">
+													
+													<span style="color:rgb(146, 208, 80);">Text Content:</span> It doesn't dissolve very much.
+													
+												</td>										
+											</tr> -->
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample1_Chem2Chem\GT.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_Chem2Chem\StyleDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_Chem2Chem\Speaker2Dubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_Chem2Chem\DeepDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_Chem2Chem\ProDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_Chem2Chem\InstructDubber.mp4" controls="" preload="" width="200"></video></td>
+
+										</tr>
+									</tbody>
+								
+								</table>
+
+							</div>
+
+
+							<div>
+							<!-- Sample1 Chem2V2C -->
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=20%></col>
+										   <col width=20%></col>
+								
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   
+										</colgroup>
+										<tr>
+											<td colspan="7" style="text-align: center;">
+												<span style="font-weight: bold; font-size: 1.2em;" >V2C-Animation Sample: Bossbaby@BossBaby_00_0199_00</span> 
+								
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+											<tr>
+												<td colspan="7" style="text-align: left;">
+													
+													<!-- <span style="color:rgb(146, 208, 80);">Text Content:</span> And see if there's someplace around here with decent sushi. -->
+													<span style="color:rgb(88, 86, 86);font-weight: bold">Text Content:</span> And see if there's someplace around here with decent sushi. <br>
+													<span style="color:rgb(15, 89, 155);font-weight: bold">Speaking Rate Instruction:</span>The speaking pace of the character in the video is relatively slow and measured. There are no significant variations in the pace throughout the video. The character's mouth movements remain consistent and deliberate, indicating a steady and controlled speaking pace.<br>
+													<span style="color:rgb(14, 187, 89);font-weight: bold">Emotion Instruction:</span> Based on the video content and the script provided, the character appears to be in a somewhat frustrated or disappointed state. The character's facial expression and body language suggest that they are not satisfied with the current situation or the lack of sushi options available. The character's search for sushi indicates a desire for something more, possibly a craving or a preference for sushi over other food options. The emotional change in the character can be interpreted as a mix of frustration, disappointment, and perhaps even hunger or craving.
+												
+												</td>										
+											</tr>
+											<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >V2C-Animation Sample: Bossbaby@BossBaby_00_0199_00</span>  -->
+												<strong>Zero-shot</strong> Dubbing under Chem2V2C scenario
+											</td>
+										</tr>	
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample1_Chem2V2C\GT.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_Chem2V2C\StyleDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_Chem2V2C\Speaker2Dubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_Chem2V2C\DeepDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_Chem2V2C\ProDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_Chem2V2C\InstructDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+
+										</tr>
+									</tbody>
+								
+								</table>
+
+
+								<!-- Sample1 GRID2V2C -->
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=20%></col>
+										   <col width=20%></col>
+								
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   
+										</colgroup>
+										<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >GRID2V2C Benchmark Sample1 (Zero-shot Dubbing)</span>  -->
+												<strong>Zero-shot</strong> Dubbing under GRID2V2C scenario
+								
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample1_GRID2V2C\GT.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_GRID2V2C\StyleDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_GRID2V2C\Speaker2Dubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_GRID2V2C\DeepDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_GRID2V2C\ProDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_GRID2V2C\InstructDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+
+										</tr>
+									</tbody>
+
+
+									<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >GRID2V2C Benchmark Sample1 (Zero-shot Dubbing)</span>  -->
+												In-domain Dubbing scenario
+								
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample1_V2C2V2C\GT.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_V2C2V2C\StyleDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_V2C2V2C\Speaker2Dubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_V2C2V2C\DeepDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_V2C2V2C\ProDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample1_V2C2V2C\InstructDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+
+										</tr>
+									</tbody>
+								
+								</table>
+
+
+
+							</div>
+
+								<!-- Sample2 GRID2V2C -->
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=20%></col>
+										   <col width=20%></col>
+								
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   
+										</colgroup>
+										<tr>
+											<td colspan="7" style="text-align: center;">
+												<span style="font-weight: bold; font-size: 1.2em;" >V2C-Animation Sample: Dragon@AstridHofferson_00_0365_00</span> 
+								
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+											<tr>
+												<td colspan="7" style="text-align: left;">
+													
+													<!-- <span style="color:rgb(146, 208, 80);">Text Content:</span> Figure out which side you're on. -->
+													<span style="color:rgb(88, 86, 86);font-weight: bold">Text Content:</span> Figure out which side you're on. <br>
+													<span style="color:rgb(15, 89, 155);font-weight: bold">Speaking Rate Instruction:</span>The character's speaking pace in the video varies, with a faster pace during the initial part of the video and a slower pace towards the end. The trend suggests a progression from a more hurried speech to a more measured and contemplative tone as the character's thoughts and emotions evolve.<br>
+													<span style="color:rgb(14, 187, 89);font-weight: bold">Emotion Instruction:</span> Based on the video content and the script, the character appears to be conflicted and unsure about which side she is on. Her initial expression is one of determination and readiness for battle, suggesting that she is on one side. However, as the scene progresses and she encounters other characters, her expression changes to one of confusion and uncertainty. This could indicate that she is questioning her allegiance or trying to understand the motivations of the different sides. The emotional journey of the character seems to be one of self-discovery and figuring out where her loyalties lie.
+												
+													
+												</td>										
+											</tr>
+											<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >V2C-Animation Sample: Dragon@AstridHofferson_00_0365_00</span>  -->
+												<strong>Zero-shot</strong> Dubbing under GRID2V2C scenario
+											</td>
+										</tr>	
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample2_GRID2V2C\GT.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_GRID2V2C\StyleDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_GRID2V2C\Speaker2Dubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_GRID2V2C\DeepDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_GRID2V2C\ProDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_GRID2V2C\InstructDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+
+										</tr>
+									</tbody>
+								
+								</table>
+
+
+
+								<!-- Sample2 Chem2V2C -->
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=20%></col>
+										   <col width=20%></col>
+								
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   
+										</colgroup>
+										<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >Chem2V2C Benchmark Sample2 (Zero-shot Dubbing)</span>  -->
+												<strong>Zero-shot</strong> Dubbing under Chem2V2C scenario
+								
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample2_Chem2V2C\GT.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_Chem2V2C\StyleDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_Chem2V2C\Speaker2Dubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_Chem2V2C\DeepDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_Chem2V2C\ProDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_Chem2V2C\InstructDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+										</tr>
+									</tbody>
+
+
+									<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >Chem2V2C Benchmark Sample2 (Zero-shot Dubbing)</span>  -->
+												In-domain Dubbing scenario
+								
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample2_V2C2V2C\GT.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_V2C2V2C\StyleDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_V2C2V2C\Speaker2Dubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_V2C2V2C\DeepDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_V2C2V2C\ProDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_V2C2V2C\InstructDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+										</tr>
+									</tbody>
+								
+								</table>
+								</div>
+
+								<!-- Sample3 GRID2V2C -->
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=20%></col>
+										   <col width=20%></col>
+								
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   
+										</colgroup>
+										<tr>
+											<td colspan="7" style="text-align: center;">
+												<span style="font-weight: bold; font-size: 1.2em;" >V2C-Animation sample: Inside@Riley_00_0212_00</span> 
+								
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+											<tr>
+												<td colspan="7" style="text-align: left;">
+													
+													<!-- <span style="color:rgb(146, 208, 80);">Text Content:</span> Hey, i saw a pizza place down the street. -->
+													<span style="color:rgb(88, 86, 86);font-weight: bold">Text Content:</span> Hey, i saw a pizza place down the street. <br>
+													<span style="color:rgb(15, 89, 155);font-weight: bold">Speaking Rate Instruction:</span>Based on the script provided and the character's mouth movements in the video, the speaking pace appears to be relatively slow and measured. The character takes their time to speak, and there are no signs of rapid or hurried speech. The trend of the speaking pace remains consistent throughout the video, with no significant variations or changes in speed.<br>
+													<span style="color:rgb(14, 187, 89);font-weight: bold">Emotion Instruction:</span> Based on the video content and the script provided, the character appears to be excited or intrigued by the mention of a pizza place down the street. Her eyes widen and her expression changes to one of interest or anticipation. This suggests that she may be looking forward to trying the pizza or perhaps is hungry and excited about the prospect of a delicious meal. The emotional change in the character is one of eagerness and pleasure, indicating a positive reaction to the news about the pizza place.
+												
+												</td>										
+											</tr>
+
+											<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >V2C-Animation sample: Inside@Riley_00_0212_00</span>  -->
+												<strong>Zero-shot</strong> Dubbing under Chem2V2C scenario
+											</td>
+										</tr>	
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample3_GRID2V2C\GT.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_GRID2V2C\StyleDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_GRID2V2C\Speaker2Dubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_GRID2V2C\DeepDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_GRID2V2C\ProDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_GRID2V2C\InstructDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+
+										</tr>
+									</tbody>
+								
+								</table>
+
+								<!-- Sample2 Chem2V2C -->
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=20%></col>
+										   <col width=20%></col>
+								
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   
+										</colgroup>
+										<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >Chem2V2C Benchmark Sample2 (Zero-shot Dubbing)</span>  -->
+												<strong>Zero-shot</strong> Dubbing under GRID2V2C scenario
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+											<!-- <tr>
+												<td colspan="7" style="text-align: left;">
+													
+													<span style="color:rgb(146, 208, 80);">Text Content:</span> Hey, i saw a pizza place down the street.
+													
+												</td>										
+											</tr> -->
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample3_Chem2V2C\GT.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_Chem2V2C\StyleDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_Chem2V2C\Speaker2Dubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_Chem2V2C\DeepDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_Chem2V2C\ProDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_Chem2V2C\InstructDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+										</tr>
+									</tbody>
+
+
+									<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >Chem2V2C Benchmark Sample2 (Zero-shot Dubbing)</span>  -->
+												In-domain Dubbing scenario
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+											<!-- <tr>
+												<td colspan="7" style="text-align: left;">
+													
+													<span style="color:rgb(146, 208, 80);">Text Content:</span> Hey, i saw a pizza place down the street.
+													
+												</td>										
+											</tr> -->
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample3_V2C2V2C\GT.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_V2C2V2C\StyleDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_V2C2V2C\Speaker2Dubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_V2C2V2C\DeepDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_V2C2V2C\ProDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample3_V2C2V2C\InstructDubber.mp4" controls="" preload="" width="200" height="150"></video></td>
+										</tr>
+									</tbody>
+								
+								</table>
+
+								<!-- Sample2 GRID2Chem -->
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=20%></col>
+										   <col width=20%></col>
+								
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   
+										</colgroup>
+										<tr>
+											<td colspan="7" style="text-align: center;">
+												<span style="font-weight: bold; font-size: 1.2em;" >Chem benchmark sample: 7RrOhe6SSj0-003.wav</span> 
+								
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+											<tr>
+												<td colspan="7" style="text-align: left;">
+													
+													<!-- <span style="color:rgb(146, 208, 80);">Text Content:</span> three we let the reaction go. -->
+													<span style="color:rgb(88, 86, 86);font-weight: bold">Text Content:</span> three we let the reaction go. <br>
+													<span style="color:rgb(15, 89, 155);font-weight: bold">Speaking Rate Instruction:</span>Based on the script \"three we let the reaction go,\" the speaking pace appears to be relatively slow and measured. The character's mouth movements are deliberate and paced, suggesting a careful and thoughtful delivery. There are no significant variations in the pace throughout the video. The character maintains a consistent speaking pace that aligns with the script's intended delivery.<br>
+													<span style="color:rgb(14, 187, 89);font-weight: bold">Emotion Instruction:</span> Based on the video content and the script \"three we let the reaction go,\" the character appears to be in a state of decision-making or negotiation. The character's emotional changes could be interpreted as a shift from a more assertive or defensive stance to a more conciliatory or compromising one. The character's body language and facial expressions suggest a willingness to listen and consider alternative perspectives. This emotional change could indicate a desire to find a resolution or agreement that benefits both parties involved.
+												
+													
+												</td>										
+											</tr>
+											<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >Chem benchmark sample: 7RrOhe6SSj0-003.wav</span>  -->
+												<strong>Zero-shot</strong> Dubbing under GRID2V2C scenario
+											</td>
+										</tr>	
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample2_GRID2Chem\GT.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_GRID2Chem\StyleDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_GRID2Chem\Speaker2Dubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_GRID2Chem\DeepDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_GRID2Chem\ProDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_GRID2Chem\InstructDubber.mp4" controls="" preload="" width="200"></video></td>
+
+										</tr>
+									</tbody>
+								
+								</table>
+
+
+								<!-- Sample2 V2C2Chem -->
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=20%></col>
+										   <col width=20%></col>
+								
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   
+										</colgroup>
+										<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >V2C2Chem Benchmark Sample2 (Zero-shot Dubbing)</span>  -->
+												<strong>Zero-shot</strong> Dubbing under V2C2Chem scenario
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+											<!-- <tr>
+												<td colspan="7" style="text-align: left;">
+													
+													<span style="color:rgb(146, 208, 80);">Text Content:</span> three we let the reaction go.
+													
+												</td>										
+											</tr> -->
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample2_V2C2Chem\GT.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_V2C2Chem\StyleDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_V2C2Chem\Speaker2Dubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_V2C2Chem\DeepDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_V2C2Chem\ProDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_V2C2Chem\InstructDubber.mp4" controls="" preload="" width="200"></video></td>
+
+										</tr>
+									</tbody>
+
+									<tr>
+											<td colspan="7" style="text-align: center;">
+												<!-- <span style="font-weight: bold; font-size: 1.2em;" >V2C2Chem Benchmark Sample2 (Zero-shot Dubbing)</span>  -->
+												In-domain Dubbing scenario
+											</td>
+										</tr>	
+
+									<tbody>
+								
+
+									</tbody>
+									<tbody>
+										<tr>
+											<!-- <tr>
+												<td colspan="7" style="text-align: left;">
+													
+													<span style="color:rgb(146, 208, 80);">Text Content:</span> three we let the reaction go.
+													
+												</td>										
+											</tr> -->
+
+											</tr>
+											<th colspan="1" style="text-align: center"><strong>Ground-Truth</strong></th>
+											<th colspan="1" style="text-align: center"><strong>StyleDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>Speaker2Dubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>DeepDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong>ProDubber</strong></th>
+											<th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">InstructDubber(Ours)</strong></th>
+											</tr>
+									
+											<td style="align: center; vertical-align: middle;" ><video src="Demo_InstructDubber\Sample2_Chem2Chem\GT.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_Chem2Chem\StyleDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_Chem2Chem\Speaker2Dubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_Chem2Chem\DeepDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_Chem2Chem\ProDubber.mp4" controls="" preload="" width="200"></video></td>
+											<td style="text-align: center"><video src="Demo_InstructDubber\Sample2_Chem2Chem\InstructDubber.mp4" controls="" preload="" width="200"></video></td>
+
+										</tr>
+									</tbody>
+								
+								</table>
+
+
+
+								
+
+								
+				
+
+
+			</div>
+				<hr />
+			</div>
+				<!-- </div> -->
+			<!-- </div> -->
+		</div>
+		
+		
+	</body>
+</html>
