@@ -113,6 +113,18 @@ We provide the generated dubbing of InstructDubber under each setting below, if 
 We would like to thank the authors of previous related projects for generously sharing their code and insights: [StyleTTS](https://github.com/yl4579/StyleTTS), [StyleTTS2](https://github.com/yl4579/StyleTTS2), [LLaVA-NEXT](https://github.com/LLaVA-VL/LLaVA-NeXT), [VideoLLaMA3](https://github.com/DAMO-NLP-SG/VideoLLaMA3), [Qwen-2.5](), [Qwen2.5-Omni](https://arxiv.org/abs/2412.15115), and Qwen Team's differenct GTE.
 
 
+## 🤝 Citation
+If you find our work useful, please consider citing:
+```
+@article{zhang2025instructdubber,
+  title={InstructDubber: Instruction-based Alignment for Zero-shot Movie Dubbing},
+  author={Zhang, Zhedong and Li, Liang and Cong, Gaoxiang and Liu, Chunshan and Gao, Yuhan and Wang, Xiaowan and Gu, Tao and Qi, Yuankai},
+  journal={arXiv preprint arXiv:2512.17154},
+  year={2025}
+}
+```
+
+
 
 
 
