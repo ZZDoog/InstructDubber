@@ -17,11 +17,13 @@ The code and data are currently being organized and will be released to this rep
 
 - [x] Release the generated dubbing of each benchmarks and settings.
 
+- [x] Update README.md (How to use).
+
 - [ ] Release the checkpoints and polish inference usage.
 
 - [ ] Release the LoRA training script of Instructed Emotion Calibrating module.
 
-- [ ] Update README.md (How to use).
+
 
 
 ## 🌼 Environment
