@@ -9,7 +9,7 @@ The code and data are currently being organized and will be released to this rep
 
 ## 🗒 TODOs
 
-- [x] Release InstructDUbber demo at [here](https://zzdoog.github.io/InstructDubber/).
+- [x] Release InstructDubber demo at [here](https://zzdoog.github.io/InstructDubber/).
 
 - [x] Release the training and inference code.
 
